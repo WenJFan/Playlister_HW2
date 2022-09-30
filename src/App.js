@@ -83,7 +83,8 @@ class App extends React.Component {
             sessionData: {
                 nextKey: prevState.sessionData.nextKey + 1,
                 counter: prevState.sessionData.counter + 1,
-                keyNamePairs: updatedPairs
+                keyNamePairs: updatedPairs,
+                editActive: false
             }
         }), () => {
             // PUTTING THIS NEW LIST IN PERMANENT STORAGE
@@ -337,24 +338,28 @@ class App extends React.Component {
         this.setState(prevState => ({
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : keyPair,
-            sessionData: prevState.sessionData
+            sessionData: prevState.sessionData,
+            deleteSong: prevState.deleteSong,
+            flag:true
         }), () => {
             // PROMPT THE USER
             this.showDeleteListModal();
         });
-    }
+    } 
 
     markSongForDeletion = (dS) => {
         this.setState(prevState => ({
             currentList: prevState.currentList,
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             sessionData: prevState.sessionData,
-            deleteSong:dS
+            deleteSong:dS,
+            flag:true
         }), () => {
             // PROMPT THE USER
             this.showDeleteSongModal();
         });
     }
+ 
 
     markSongForEdition = (eS) => {
         this.setState(prevState => ({
@@ -362,12 +367,14 @@ class App extends React.Component {
             listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
             sessionData: prevState.sessionData,
             deleteSong:prevState.deleteSong,
-            editSong:eS
+            editSong:eS,
+            flag:true
         }), () => {
             // PROMPT THE USER
             this.showEditSongModal();
         });
     }
+ 
  
  
     // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
@@ -377,10 +384,22 @@ class App extends React.Component {
         modal.classList.add("is-visible");
     }
     // THIS FUNCTION IS FOR HIDING THE MODAL
-    hideDeleteListModal() {
+    hideDeleteListModal=()=> {
         let modal = document.getElementById("delete-list-modal");
-        modal.classList.remove("is-visible");
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            sessionData: prevState.sessionData,
+            deleteSong:prevState.deleteSong,
+            flag:false
+        }), () => {
+            // PROMPT THE USER
+            modal.classList.remove("is-visible");
+        });
+        //modal.classList.remove("is-visible");
+       
     }
+ 
 
     showDeleteSongModal() {
         let modal = document.getElementById("delete-song-modal");
@@ -389,8 +408,18 @@ class App extends React.Component {
     }
     hideDeleteSongModal=()=> {
         let modal = document.getElementById("delete-song-modal");
-        modal.classList.remove("is-visible");
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            sessionData: prevState.sessionData,
+            deleteSong:prevState.deleteSong,
+            flag:false
+        }), () => {
+            // PROMPT THE USER
+            modal.classList.remove("is-visible");
+        });
     }
+ 
     showEditSongModal(){
         let modal = document.getElementById("edit-song-modal");
         let est = document.getElementById("text1");
@@ -405,8 +434,19 @@ class App extends React.Component {
     }
     hideEditSongModal=()=> {
         let modal = document.getElementById("edit-song-modal");
-        modal.classList.remove("is-visible");
+        this.setState(prevState => ({
+            currentList: prevState.currentList,
+            listKeyPairMarkedForDeletion : prevState.listKeyPairMarkedForDeletion,
+            sessionData: prevState.sessionData,
+            deleteSong:prevState.deleteSong,
+            flag:false
+        }), () => {
+            // PROMPT THE USER
+            modal.classList.remove("is-visible");
+        });
+       
     }
+ 
     handlectrlKeyPress = (event) => {
         if (event.ctrlKey&&(event.which == 90 || event.keyCode == 90)) {
             if (this.tps.hasTransactionToUndo()){
@@ -422,61 +462,80 @@ class App extends React.Component {
             }
         }
     }
- 
+
+    Editactive = (boolean) =>{
+        this.setState(prevState => ({
+            flag : boolean
+        }));
+    }
  
     render() {
-        let canAddSong = this.state.currentList !== null;
-        let canUndo = this.tps.hasTransactionToUndo();
-        let canRedo = this.tps.hasTransactionToRedo();
-        let canClose = this.state.currentList !== null;
-        return (
-            <div id="root" onKeyDown={this.handlectrlKeyPress}>
-                <Banner />
-                <SidebarHeading
-                    createNewListCallback={this.createNewList}
-                />
-                <SidebarList
-                    currentList={this.state.currentList}
-                    keyNamePairs={this.state.sessionData.keyNamePairs}
-                    deleteListCallback={this.markListForDeletion}
-                    loadListCallback={this.loadList}
-                    renameListCallback={this.renameList}
-                />
-                <EditToolbar
-                    canAddSong={canAddSong}
-                    canUndo={canUndo}
-                    canRedo={canRedo}
-                    canClose={canClose} 
-                    undoCallback={this.undo}
-                    redoCallback={this.redo}
-                    closeCallback={this.closeCurrentList}
-                    AddNewSongCallback = {this.addAddSongTransaction}
-                />
-                <PlaylistCards
-                    currentList={this.state.currentList}
-                    moveSongCallback={this.addMoveSongTransaction}
-                    deleteSongCallback={this.markSongForDeletion}
-                    editSongCallback={this.markSongForEdition} />
-                <Statusbar 
-                    currentList={this.state.currentList} />
-                <DeleteListModal
-                    listKeyPair={this.state.listKeyPairMarkedForDeletion}
-                    hideDeleteListModalCallback={this.hideDeleteListModal}
-                    deleteListCallback={this.deleteMarkedList}
-                />
-                <DeleteSongModal
-                   Song={this.state.deleteSong}
-                   hideDeleteSongModalCallback={this.hideDeleteSongModal}
-                   deleteSongCallback={this.deleteMarkedSong}
-               />
-                <EditSongModal
-                   Song={this.state.editSong}
-                   hideEditSongModalCallback={this.hideEditSongModal}
-                   editSongCallback={this.editMarkedSong}
-               />
-            </div>
-        );
-    }
+        let canAddList,canAddSong,canUndo,canRedo,canClose;
+       if(this.state.flag){
+           canAddList = false;
+           canUndo = false;
+           canRedo = false;
+           canClose = false;
+           canAddSong = false;
+       }
+       else{
+           canAddSong = this.state.currentList !== null;
+           canUndo = this.tps.hasTransactionToUndo();
+           canRedo = this.tps.hasTransactionToRedo();
+           canClose = this.state.currentList !== null;
+           canAddList = !canClose;
+       }
+
+       return (
+        <div id="root" onKeyDown={this.handlectrlKeyPress}>
+            <Banner />
+            <SidebarHeading
+                createNewListCallback={this.createNewList}
+                canAddList={canAddList}
+            />
+            <SidebarList
+                currentList={this.state.currentList}
+                keyNamePairs={this.state.sessionData.keyNamePairs}
+                deleteListCallback={this.markListForDeletion}
+                loadListCallback={this.loadList}
+                renameListCallback={this.renameList}
+                Editactive={this.Editactive}
+            />
+            <EditToolbar
+                canAddSong={canAddSong}
+                canUndo={canUndo}
+                canRedo={canRedo}
+                canClose={canClose}
+                undoCallback={this.undo}
+                redoCallback={this.redo}
+                closeCallback={this.closeCurrentList}
+                AddNewSongCallback = {this.addAddSongTransaction}
+            />
+            <PlaylistCards
+                currentList={this.state.currentList}
+                moveSongCallback={this.addMoveSongTransaction}
+                deleteSongCallback={this.markSongForDeletion}
+                editSongCallback={this.markSongForEdition}/>
+            <Statusbar
+                currentList={this.state.currentList} />
+            <DeleteListModal
+                listKeyPair={this.state.listKeyPairMarkedForDeletion}
+                hideDeleteListModalCallback={this.hideDeleteListModal}
+                deleteListCallback={this.deleteMarkedList}
+            />
+            <DeleteSongModal
+                Song={this.state.deleteSong}
+                hideDeleteSongModalCallback={this.hideDeleteSongModal}
+                deleteSongCallback={this.deleteMarkedSong}
+            />
+            <EditSongModal
+                Song={this.state.editSong}
+                hideEditSongModalCallback={this.hideEditSongModal}
+                editSongCallback={this.editMarkedSong}
+            />
+        </div>
+    );
+}
 }
 
 export default App;

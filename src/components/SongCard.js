@@ -8,6 +8,9 @@ export default class SongCard extends React.Component {
            isDragging: false,
            draggedTo: false,
            editActive: false,
+           text1:this.props.song.title,
+           text2:this.props.song.artist,
+           text3:this.props.song.youTubeId
        }
    }
   
@@ -57,6 +60,10 @@ export default class SongCard extends React.Component {
        this.props.moveCallback(sourceId, targetId);
    }
  
+   handelDeleteSong = (event)=>{
+       event.stopPropagation();
+       this.props.deleteCallback(this.props.song);
+   }
  
    getItemNum = () => {
        return this.props.id.substring("playlist-song-".length);
@@ -66,21 +73,14 @@ export default class SongCard extends React.Component {
            editActive: !this.state.editActive
        });
    }
-
-   handleDeleteSong = (event)=>{
-        event.stopPropagation();
-        this.props.deleteCallback(this.props.song);
-    }   
-
-    handleClick = (event) => {
-        if (event.detail === 2) {
-            event.stopPropagation();
-            this.props.editSongCallback(this.props.song);
-            this.handleToggleEdit(event);
-        }
-    }
-
-
+   handleClick = (event) => {
+       if (event.detail === 2) {
+           event.stopPropagation();
+           this.props.editSongCallback(this.props.song);
+           this.handleToggleEdit(event);
+       }
+   }
+  
  
    render() {
        const { song } = this.props;
@@ -114,7 +114,7 @@ export default class SongCard extends React.Component {
                    type = "button"
                    id = {"delete-song-" + num}
                    className = {"list-card-button"}
-                   onClick = {this.handleDeleteSong}
+                   onClick = {this.handelDeleteSong}
                    value = {"X"}
                    />
            </div>
