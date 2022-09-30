@@ -66,13 +66,21 @@ export default class SongCard extends React.Component {
            editActive: !this.state.editActive
        });
    }
-   
-   handelDeleteSong = (event)=>{
-    event.stopPropagation();
-    this.props.deleteCallback(this.props.song);
-}
 
-  
+   handelDeleteSong = (event)=>{
+        event.stopPropagation();
+        this.props.deleteCallback(this.props.song);
+    }   
+
+    handleClick = (event) => {
+        if (event.detail === 2) {
+            event.stopPropagation();
+            this.props.editSongCallback(this.props.song);
+            this.handleToggleEdit(event);
+        }
+    }
+
+
  
    render() {
        const { song } = this.props;
@@ -92,6 +100,7 @@ export default class SongCard extends React.Component {
                onDragLeave={this.handleDragLeave}
                onDrop={this.handleDrop}
                draggable="true"
+               onClick={this.handleClick}
            >
               <span>
                    {num}. {}
