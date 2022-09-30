@@ -407,6 +407,21 @@ class App extends React.Component {
         let modal = document.getElementById("edit-song-modal");
         modal.classList.remove("is-visible");
     }
+    handlectrlKeyPress = (event) => {
+        if (event.ctrlKey&&(event.which == 90 || event.keyCode == 90)) {
+            if (this.tps.hasTransactionToUndo()){
+                this.tps.undoTransaction();
+                this.db.mutationUpdateList(this.state.currentList);
+            }
+        }
+        else if (event.ctrlKey&&(event.which == 89 || event.keyCode == 89)) {
+            if (this.tps.hasTransactionToRedo()){
+                    this.tps.doTransaction();
+                    this.db.mutationUpdateList(this.state.currentList);
+               
+            }
+        }
+    }
  
  
     render() {
@@ -415,7 +430,7 @@ class App extends React.Component {
         let canRedo = this.tps.hasTransactionToRedo();
         let canClose = this.state.currentList !== null;
         return (
-            <div id="root">
+            <div id="root" onKeyDown={this.handlectrlKeyPress}>
                 <Banner />
                 <SidebarHeading
                     createNewListCallback={this.createNewList}
