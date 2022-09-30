@@ -66,6 +66,11 @@ export default class SongCard extends React.Component {
            editActive: !this.state.editActive
        });
    }
+   
+   handelDeleteSong = (event)=>{
+    event.stopPropagation();
+    this.props.deleteCallback(this.props.song);
+}
 
   
  
