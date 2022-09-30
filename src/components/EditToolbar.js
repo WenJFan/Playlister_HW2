@@ -1,6 +1,11 @@
 import React from "react";
 
 export default class EditToolbar extends React.Component {
+
+    handelAddSong = ()=>{
+        this.props.AddNewSongCallback("Untitle","Unknown","dQw4w9WgXcQ");
+    }
+ 
     render() {
         const { canAddSong, canUndo, canRedo, canClose, 
                 undoCallback, redoCallback, closeCallback} = this.props;
@@ -8,7 +13,7 @@ export default class EditToolbar extends React.Component {
         let undoClass = "toolbar-button";
         let redoClass = "toolbar-button";
         let closeClass = "toolbar-button";
-        if (canAddSong) addSongClass += " disabled";
+        if (canAddSong) addSongClass += " enabled";
         if (canUndo) undoClass += " disabled";
         if (canRedo) redoClass += " disabled";
         if (canClose) closeClass += " disabled";
@@ -19,6 +24,7 @@ export default class EditToolbar extends React.Component {
                 id='add-song-button' 
                 value="+" 
                 className={addSongClass}
+                onClick = {this.handelAddSong}
             />
             <input 
                 type="button" 

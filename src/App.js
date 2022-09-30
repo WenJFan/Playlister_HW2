@@ -7,6 +7,7 @@ import jsTPS from './common/jsTPS.js';
 
 // OUR TRANSACTIONS
 import MoveSong_Transaction from './transactions/MoveSong_Transaction.js';
+import AddSong_Transaction from './transactions/AddSong_Transaction.js';
 
 // THESE REACT COMPONENTS ARE MODALS
 import DeleteListModal from './components/DeleteListModal.js';
@@ -206,6 +207,19 @@ class App extends React.Component {
     getPlaylistSize = () => {
         return this.state.currentList.songs.length;
     }
+
+    addNewSong=(nindex,ntitle,nartist,nid)=>{
+        let newSong = {
+            "title":ntitle,
+            "artist":nartist,
+            "youTubeId":nid
+        }
+        let list = this.state.currentList;
+        list.songs.splice(nindex, 0, newSong);
+        this.setStateWithUpdatedList(list);
+    }
+ 
+
     // THIS FUNCTION MOVES A SONG IN THE CURRENT LIST FROM
     // start TO end AND ADJUSTS ALL OTHER ITEMS ACCORDINGLY
     moveSong(start, end) {
@@ -235,6 +249,14 @@ class App extends React.Component {
         let transaction = new MoveSong_Transaction(this, start, end);
         this.tps.addTransaction(transaction);
     }
+
+    // THIS FUNCTION ADDS A AddSong_Transaction TO THE TRANSACTION STACK
+    addAddSongTransaction = (title,artist,id) =>{
+        let index = (this.state.currentList.songs.length);
+        let transaction = new AddSong_Transaction(this,index,title,artist,id);
+        this.tps.addTransaction(transaction);
+    }
+ 
     // THIS FUNCTION BEGINS THE PROCESS OF PERFORMING AN UNDO
     undo = () => {
         if (this.tps.hasTransactionToUndo()) {
@@ -300,6 +322,7 @@ class App extends React.Component {
                     undoCallback={this.undo}
                     redoCallback={this.redo}
                     closeCallback={this.closeCurrentList}
+                    AddNewSongCallback = {this.addAddSongTransaction}
                 />
                 <PlaylistCards
                     currentList={this.state.currentList}
